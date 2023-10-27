@@ -1,0 +1,50 @@
+---
+- name: Setup a new PC
+  hosts: all
+  remote_user: root
+
+  vars_files:
+    - vars/variables.yml
+    - vars/secret.yml
+
+  tasks:
+    - name: Create an account for "{{ username }}"
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ password | password_hash('sha512') }}"
+        update_password: on_create
+        shell: /bin/bash
+        append: true
+        groups:
+          - wheel
+
+    - name: Enable passwordless sudo for the wheel group
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+
+    - name: Update the system and package cache
+      community.general.pacman:
+        update_cache: true
+        upgrade: true
+
+    - name: Install packages
+      community.general.pacman:
+        name: "{{ packages }}"
+
+    - name: Enable services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+      loop: "{{ services }}"
+
+
+    - name: Install yay AUR helper
+      kewlfft.aur.aur:
+        name: yay-bin
+        use: makepkg
+      become: true
+      become_user: "{{ username }}"

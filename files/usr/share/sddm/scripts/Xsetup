@@ -1,0 +1,17 @@
+#!/bin/sh
+
+
+# Needed for NVIDIA Prime, because the value from
+# /etc/sddm.conf.d/20-optimus-manager.conf is overridden
+# for the xrandr script
+if [ -e /sbin/prime-offload ]
+then
+    /sbin/prime-offload
+fi
+
+# If there is more than one connected monitor
+if [ $(xrandr | grep -wc connected) -gt 1 ]
+then
+    # Disable the built-in one
+    xrandr --output eDP-1-1 --off
+fi

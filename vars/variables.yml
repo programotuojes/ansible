@@ -1,0 +1,100 @@
+---
+username: gustas
+
+packages:
+# Multiple packages satisty Plasma deps, defining them explicitly
+  - noto-fonts
+  - wireplumber
+  - phonon-qt5-vlc
+# From plasma group
+  - bluedevil
+  - breeze
+  - breeze-gtk
+  - kde-gtk-config
+  - kdeplasma-addons
+  - khotkeys
+  - kinfocenter
+  - kmenuedit
+  - kpipewire
+  - kscreen
+  - kscreenlocker
+  - ksshaskpass
+  - kwin
+  - kwrited
+  # - milou # TODO not sure if this is the dropdown from the top
+  - oxygen-sounds
+  - plasma-browser-integration
+  - plasma-desktop
+  - plasma-disks # don't know what is is doing. Maybe works with the info center
+  - plasma-firewall
+  - plasma-integration
+  - plasma-nm
+  - plasma-pa # TODO find if there's something for Pipewire
+  - plasma-systemmonitor
+  - plasma-thunderbolt
+  - plasma-workspace
+  - plasma-workspace-wallpapers
+  - polkit-kde-agent
+  - powerdevil
+  - sddm
+  - sddm-kcm
+  - systemsettings
+  - xdg-desktop-portal
+  - xdg-desktop-portal-kde
+# Plasma applications
+  - ark
+  - dolphin
+  - dolphin-plugins
+  - ffmpegthumbs
+  - filelight
+  - gwenview
+  - kate
+  - kdegraphics-thumbnailers
+  - kdenetwork-filesharing
+  - kio-extras
+  - konsole
+  - okular
+  - spectacle
+# Applications
+  # - yakuake
+  - firefox
+# Audio
+  - sof-firmware
+  - pipewire
+  - pipewire-audio
+  - pipewire-alsa
+  - pipewire-pulse
+  - pipewire-jack
+# Graphics
+  - nvidia
+  - nvidia-utils
+  - vulkan-icd-loader
+  - vulkan-intel
+# Other
+  - git
+  - man-db
+  - man-pages
+  - ntfs-3g
+  - jre-openjdk # for jetbrains-toolbox
+  - dotnet-sdk
+  - aspnet-runtime
+
+services:
+  - NetworkManager.service
+  - fstrim.timer # Periodic TRIM
+  - sddm.service
+  - bluetooth.service
+
+pacman_config:
+  - line: Color
+    regexp: ^#?Color
+  - line: VerbosePkgLists
+    regexp: ^#?VerbosePkgLists
+  - line: ParallelDownloads = 1
+    regexp: ^#?ParallelDownloads
+
+mkinitcpio:
+  - line: MODULES=(i915 intel_agp nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+    regexp: ^MODULES=
+  - line: HOOKS=(systemd autodetect modconf block keyboard sd-vconsole sd-encrypt filesystems fsck)
+    regexp: ^HOOKS=

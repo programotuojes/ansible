@@ -1,0 +1,28 @@
+---
+- name: Configure applications
+  hosts: all
+  remote_user: root
+
+  vars_files:
+    - vars/variables.yml
+    - vars/secret.yml
+
+  tasks:
+    - name: Configure /etc/pacman.conf
+      ansible.builtin.lineinfile:
+        path: /etc/pacman.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop: "{{ pacman_config }}"
+
+    - name: Configure SDDM
+      ansible.builtin.copy:
+        src: files/etc/sddm.conf.d/zz-ansible.conf
+        dest: /etc/sddm.conf.d/zz-ansible.conf
+        mode: "0644"
+
+    - name: Configure SDDM's Xsetup
+      ansible.builtin.copy:
+        src: files/usr/share/sddm/scripts/Xsetup
+        dest: /usr/share/sddm/scripts/Xsetup
+        mode: "0755"

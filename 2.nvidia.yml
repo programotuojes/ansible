@@ -1,0 +1,44 @@
+---
+- name: Setup a new PC
+  hosts: all
+  remote_user: root
+
+  vars_files:
+    - vars/variables.yml
+    - vars/secret.yml
+
+  tasks:
+    - name: Set up mkinitcpio
+      ansible.builtin.lineinfile:
+        path: /etc/mkinitcpio.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop: "{{ mkinitcpio }}"
+      notify:
+        - Generate initramfs
+
+    - name: Enable DRM kernel mode setting in cmdline
+      ansible.builtin.lineinfile:
+        path: /etc/kernel/cmdline
+        line: nvidia_drm.modeset=1
+      notify:
+        - Generate initramfs
+
+    - name: Configure pacman hook for Nvidia updates
+      ansible.builtin.copy:
+        src: files/etc/pacman.d/hooks/nvidia.hook
+        dest: /etc/pacman.d/hooks/nvidia.hook
+        mode: "0644"
+
+    - name: Install optimus-manager
+      kewlfft.aur.aur:
+        name:
+          - optimus-manager
+          - optimus-manager-qt-kde
+      become: true
+      become_user: "{{ username }}"
+
+  handlers:
+    - name: Generate initramfs
+      changed_when: true
+      ansible.builtin.command: /usr/bin/mkinitcpio -P
